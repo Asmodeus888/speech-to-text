@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎙️ Ярианы Бичвэр</title>
+    <link rel="manifest" href="data:application/manifest+json,{
+        &quot;name&quot;: &quot;Ярианы Бичвэр&quot;,
+        &quot;short_name&quot;: &quot;Ярианы Бичвэр&quot;,
+        &quot;start_url&quot;: &quot;./&quot;,
+        &quot;display&quot;: &quot;standalone&quot;,
+        &quot;background_color&quot;: &quot;#0a0a1a&quot;,
+        &quot;theme_color&quot;: &quot;#6C63FF&quot;,
+        &quot;icons&quot;: [{
+            &quot;src&quot;: &quot;https://cdn-icons-png.flaticon.com/512/1059/1059175.png&quot;,
+            &quot;sizes&quot;: &quot;512x512&quot;,
+            &quot;type&quot;: &quot;image/png&quot;
+        }]
+    }">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#0a0a1a">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1059/1059175.png">
+
+<style>
+/* Энд өмнөх ижил дизайн байгаа, зөвхөн логик зассан */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #6C63FF;
+    --primary-dark: #5A52D5;
+    --secondary: #FF6584;
+    --bg-dark: #0a0a1a;
+    --bg-card: #12122a;
+    --bg-card-hover: #1a1a3e;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0c0;
+    --border: #2a2a4a;
+    --success: #00C851;
+    --danger: #ff4444;
+    --glass: rgba(255, 255, 255, 0.05);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+}
+
+.bg-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.bg-animation .circle {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.2;
+    animation: float 20s infinite ease-in-out;
+}
+
+.bg-animation .circle:nth-child(1) {
+    width: 600px;
+    height: 600px;
+    background: var(--primary);
+    top: -200px;
+    left: -200px;
+}
+
+.bg-animation .circle:nth-child(2) {
+    width: 400px;
+    height: 400px;
+    background: var(--secondary);
+    bottom: -100px;
+    right: -100px;
+    animation-delay: -5s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(30px, -30px) scale(1.1); }
+}
+
+.container {
+    position: relative;
+    z-index: 1;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    padding: 30px 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.install-btn {
+    padding: 10px 16px;
+    background: var(--primary);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: none;
+}
+
+.install-btn.show {
+    display: block;
+}
+
+.header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-secondary);
+    transition: all 0.3s;
+}
+
+.status-dot.active {
+    background: var(--success);
+    box-shadow: 0 0 12px var(--success);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%,100% { opacity:1; }
+    50% { opacity:0.5; }
+}
+
+.lang-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.lang-btn {
+    padding: 16px;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.lang-btn:hover, .lang-btn.active {
+    background: var(--bg-card-hover);
+    border-color: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.mic-btn {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    font-size: 36px;
+    cursor: pointer;
+    margin: 20px auto;
+    display: block;
+    transition: all 0.3s;
+    box-shadow: 0 8px 32px rgba(108, 99, 255, 0.4);
+}
+
+.mic-btn.recording {
+    background: var(--danger);
+    box-shadow: 0 8px 32px rgba(255, 68, 68, 0.6);
+    animation: recording 1.5s infinite;
+}
+
+@keyframes recording {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.mic-label {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+.transcript-box {
+    width: 100%;
+    min-height: 300px;
+    padding: 24px;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    color: white;
+    font-size: 16px;
+    line-height: 1.8;
+    outline: none;
+    margin-bottom: 20px;
+    resize: vertical;
+}
+
+.transcript-box.recording {
+    border-color: var(--success);
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.action-btn {
+    padding: 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.action-btn:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.word-count {
+    text-align: right;
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    padding: 14px 28px;
+    background: var(--bg-card);
+    border: 1px solid var(--primary);
+    border-radius: 14px;
+    z-index: 1000;
+    transition: all 0.4s;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 768px) {
+    .container { padding: 12px; }
+    .mic-btn { width: 80px; height: 80px; font-size: 28px; }
+    .action-buttons { grid-template-columns: repeat(2, 1fr); }
+}
+
+</style>
+</head>
+<body>
+
+<div class="bg-animation">
+    <div class="circle"></div>
+    <div class="circle"></div>
+</div>
+
+<div class="container">
+    <div class="header">
+        <h1>🎙️ Ярианы Бичвэр</h1>
+        <button class="install-btn" id="installBtn">⬇️ Апп суулгах</button>
+    </div>
+
+    <div class="status-bar">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Бэлэн байна</span>
+    </div>
+
+    <div class="lang-grid">
+        <button class="lang-btn active" onclick="selectLanguage('zgh-MN', this)">🇲🇳 Монгол</button>
+        <button class="lang-btn" onclick="selectLanguage('en-US', this)">🇺🇸 English</button>
+        <button class="lang-btn" onclick="selectLanguage('dual', this)">🔄 Хос хэл</button>
+    </div>
+
+    <button class="mic-btn" id="micBtn" onclick="toggleRecording()">🎤</button>
+
+    <div class="mic-label" id="micLabel">Дарж эхлүүлэх</div>
+
+    <div class="word-count" id="wordCount">0 үг</div>
+
+    <textarea class="transcript-box" id="transcriptBox" placeholder="Яриагаа энд автоматаар бичигдэнэ..."></textarea>
+
+    <div class="action-buttons">
+        <button class="action-btn" onclick="copyText()">📋 Хуулах</button>
+        <button class="action-btn" onclick="downloadText()">💾 Татах</button>
+        <button class="action-btn" onclick="clearText()">🗑️ Цэвэрлэх</button>
+    </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    let recognition = null;
+    let isRecording = false;
+    let currentLang = 'zgh-MN';
+    let dualMode = false;
+    let finalTranscript = '';
+    let deferredPrompt;
+
+    // АВТОМАТ ҮГ ЗАСВАР
+    const correctWords = {
+        'биш': 'биш', 'виш': 'биш', 'биш ': 'биш',
+        'ийм': 'ийм', 'им': 'ийм', 'йим': 'ийм',
+        'гээд': 'гээд', 'гэд': 'гээд', 'кээд': 'гээд',
+        'мэд': 'мэдээ', 'мэдээ': 'мэдээ',
+        'тийм': 'тийм', 'тим': 'тийм', 'дим': 'тийм',
+        'юм': 'юм', 'ум': 'юм',
+        'болно': 'болно', 'боло': 'болно',
+        'байна': 'байна', 'бай': 'байна',
+        'гэж': 'гэж', 'гэ': 'гэж',
+        'хэрэв': 'хэрэв', 'хэр': 'хэрэв',
+        'тиймээ': 'тиймээ', 'тийм ээ': 'тиймээ',
+        'за': 'за', 'ца': 'за',
+        'одоо': 'одоо', 'одо': 'одоо',
+        'яг': 'яг', 'як': 'яг'
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('installBtn').classList.add('show');
+    });
+
+    document.getElementById('installBtn').addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                document.getElementById('installBtn').classList.remove('show');
+            }
+        }
+    });
+
+    function init() {
+        if (!('webkitSpeechRecognition' in window)) {
+            showToast('⚠️ Chrome browser ашиглана уу');
+            return;
+        }
+
+        const SpeechRecognition = window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+
+        recognition.lang = currentLang;
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 5;
+
+        recognition.onstart = () => {
+            isRecording = true;
+            updateUI();
+        }
+
+        recognition.onresult = (event) => {
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                    let text = event.results[i][0].transcript.trim();
+
+                    // Автомат үг засвар
+                    Object.keys(correctWords).forEach(wrong => {
+                        text = text.replaceAll(new RegExp(`\\b\({wrong}\\b`, 'gi'), correctWords[wrong]);
+                    });
+
+                    // Автомат том үсэг
+                    text = text.charAt(0).toUpperCase() + text.slice(1);
+
+                    finalTranscript += ' ' + text;
+                    finalTranscript = finalTranscript.replace(/  +/g, ' ');
+                }
+            }
+
+            transcriptBox.value = finalTranscript.trim();
+            updateWordCount();
+            localStorage.setItem('transcript', finalTranscript);
+        }
+
+        recognition.onend = () => {
+            if (isRecording) {
+                if (dualMode) {
+                    recognition.lang = recognition.lang === 'zgh-MN' ? 'en-US' : 'zgh-MN';
+                }
+                recognition.start();
+            } else {
+                updateUI();
+            }
+        }
+
+        recognition.onerror = (e) => {
+            console.log(e.error);
+            if (isRecording) setTimeout(() => recognition.start(), 500);
+        }
+
+        // Хадгалсан бичвэр ачаалах
+        const saved = localStorage.getItem('transcript');
+        if (saved) {
+            finalTranscript = saved;
+            transcriptBox.value = saved;
+            updateWordCount();
+        }
+    }
+
+    function toggleRecording() {
+        if (isRecording) {
+            isRecording = false;
+            recognition.stop();
+            showToast('⏹️ Зогсоов');
+        } else {
+            recognition.start();
+            showToast('🎤 Эхэллээ');
+        }
+        updateUI();
+    }
+
+    function selectLanguage(lang, btn) {
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (lang === 'dual') {
+            dualMode = true;
+            currentLang = 'zgh-MN';
+            showToast('🔄 Хос хэл идэвхжсэн');
+        } else {
+            dualMode = false;
+            currentLang = lang;
+            recognition.lang = lang;
+            showToast(lang === 'zgh-MN' ? '🇲🇳 Монгол хэл сонгогдлоо' : '🇺🇸 Англи хэл сонгогдлоо');
+        }
+
+        if (isRecording) {
+            recognition.stop();
+        }
+    }
+
+    function updateUI() {
+        micBtn.classList.toggle('recording', isRecording);
+        statusDot.classList.toggle('active', isRecording);
+        micIcon.textContent = isRecording ? '⏹️' : '🎤';
+        statusText.textContent = isRecording ? 'Бичиж байна...' : 'Бэлэн байна';
+        micLabel.textContent = isRecording ? 'Дарж зогсоох' : 'Дарж эхлүүлэх';
+        transcriptBox.classList.toggle('recording', isRecording);
+    }
+
+    function updateWordCount() {
+        const words = finalTranscript.trim().split(/\s+/).filter(w => w).length;
+        wordCount.textContent = `\){words} үг • ${finalTranscript.length} тэмдэгт`;
+    }
+
+    function copyText() {
+        navigator.clipboard.writeText(finalTranscript.trim());
+        showToast('✅ Хуулагдлаа');
+    }
+
+    function downloadText() {
+        const blob = new Blob([finalTranscript], {type: 'text/plain'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'yariana_bichver.txt';
+        a.click();
+        showToast('💾 Татагдлаа');
+    }
+
+    function clearText() {
+        if (confirm('Бүгдийг цэвэрлэх үү?')) {
+            finalTranscript = '';
+            transcriptBox.value = '';
+            localStorage.removeItem('transcript');
+            updateWordCount();
+            showToast('🗑️ Цэвэрлэгдлээ');
+        }
+    }
+
+    function showToast(text) {
+        toast.textContent = text;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    transcriptBox.addEventListener('input', () => {
+        finalTranscript = transcriptBox.value;
+        updateWordCount();
+        localStorage.setItem('transcript', finalTranscript);
+    });
+
+    init();
+
+</script>
+
+</body>
+</html>
