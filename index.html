@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎙️ Мэргэжлийн Яриа Бичвэр</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50px;
+            margin-bottom: 25px;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #666;
+            transition: 0.3s;
+        }
+        .status-dot.active {
+            background: #00ff88;
+            box-shadow: 0 0 15px #00ff88;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        .lang-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .lang-btn {
+            padding: 12px 25px;
+            border: 2px solid #444;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.05);
+            color: #aaa;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+        .lang-btn:hover, .lang-btn.active {
+            border-color: #00d4ff;
+            color: #fff;
+            background: rgba(0,212,255,0.1);
+        }
+        .mic-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .mic-btn {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+            font-size: 48px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 10px 40px rgba(255,65,108,0.4);
+        }
+        .mic-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 50px rgba(255,65,108,0.6);
+        }
+        .mic-btn.recording {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            animation: recording-pulse 1.5s infinite;
+        }
+        @keyframes recording-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0,255,136,0.7); }
+            50% { box-shadow: 0 0 0 20px rgba(0,255,136,0); }
+        }
+        .visualizer {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 50px;
+            gap: 3px;
+            margin: 15px 0;
+        }
+        .bar {
+            width: 6px;
+            background: linear-gradient(to top, #00d4ff, #7b2ff7);
+            border-radius: 3px;
+            transition: height 0.1s;
+        }
+        .transcript-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        .transcript-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .transcript-header h3 {
+            font-size: 18px;
+            color: #00d4ff;
+        }
+        .word-count {
+            font-size: 14px;
+            color: #888;
+        }
+        .transcript-box {
+            width: 100%;
+            min-height: 250px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #333;
+            border-radius: 15px;
+            color: #fff;
+            font-size: 17px;
+            line-height: 1.8;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .transcript-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        .transcript-box::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+        .interim {
+            color: #888;
+            font-style: italic;
+        }
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .action-btn {
+            padding: 15px 20px;
+            border: 1px solid #444;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            color: #ccc;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+        .action-btn:hover {
+            background: rgba(0,212,255,0.15);
+            border-color: #00d4ff;
+            color: #fff;
+        }
+        .shortcuts {
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+            margin-top: 20px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 15px 30px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 10px;
+            transition: 0.4s;
+            z-index: 1000;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        @media (max-width: 600px) {
+            .actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🎙️ Мэргэжлийн Яриа Бичвэр</h1>
+        <p style="color:#888;">Монгол + English • Мэргэжлийн түвшний хөрвүүлэгч</p>
+    </div>
+
+    <div class="status-bar">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Бэлэн байна</span>
+    </div>
+
+    <div class="lang-selector">
+        <button class="lang-btn active" onclick="setLang('mn-MN', this)">🇲🇳 Монгол</button>
+        <button class="lang-btn" onclick="setLang('en-US', this)">🇺🇸 English</button>
+        <button class="lang-btn" onclick="setLang('dual', this)">🔄 Хос хэл</button>
+    </div>
+
+    <div class="mic-section">
+        <button class="mic-btn" id="micBtn" onclick="toggleRecording()">🎤</button>
+        <p id="micLabel" style="color:#888; margin-top:15px;">Дарж эхлүүлэх</p>
+        <div class="visualizer" id="visualizer"></div>
+    </div>
+
+    <div class="transcript-section">
+        <div class="transcript-header">
+            <h3>📄 Бичвэр</h3>
+            <span class="word-count" id="wordCount">0 үг • 0 тэмдэгт</span>
+        </div>
+        <div class="transcript-box" id="transcriptBox" contenteditable="true">
+            <span class="interim">Микрофон товчийг дарж яриагаа бичүүлнэ үү...</span>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="action-btn" onclick="copyText()">📋 Хуулах</button>
+        <button class="action-btn" onclick="downloadText()">💾 Татах (.txt)</button>
+        <button class="action-btn" onclick="downloadWord()">📄 Татах (.doc)</button>
+        <button class="action-btn" onclick="clearText()">🗑️ Цэвэрлэх</button>
+    </div>
+
+    <div class="shortcuts">
+        ⌨️ Товчлол: <kbd>Space</kbd> Эхлэх/Зогсоох • <kbd>Ctrl+C</kbd> Хуулах • <kbd>Ctrl+S</kbd> Хадгалах
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== GLOBAL VARIABLES ====================
+let recognition = null;
+let isRecording = false;
+let currentLang = 'mn-MN';
+let dualMode = false;
+let dualLangIndex = 0;
+let finalTranscript = '';
+let interimTranscript = '';
+let audioContext = null;
+let analyser = null;
+let microphone = null;
+
+// ==================== INITIALIZATION ====================
+function init() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        showToast('⚠️ Chrome browser ашиглана уу');
+        return;
+    }
+    setupRecognition();
+    setupVisualizer();
+}
+
+// ==================== SPEECH RECOGNITION ====================
+function setupRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 3;
+    recognition.lang = currentLang;
+
+    recognition.onstart = () => {
+        isRecording = true;
+        updateUI();
+    };
+
+    recognition.onresult = (event) => {
+        interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+                let processed = processTranscript(transcript);
+                finalTranscript += processed;
+            } else {
+                interimTranscript += transcript;
+            }
+        }
+        updateTranscriptDisplay();
+        updateWordCount();
+    };
+
+    recognition.onerror = (event) => {
+        console.error('Error:', event.error);
+        if (event.error === 'not-allowed') {
+            showToast('🚫 Микрофон зөвшөөрөл өгнө үү');
+        } else if (event.error === 'no-speech') {
+            // Continue listening
+        }
+    };
+
+    recognition.onend = () => {
+        if (isRecording) {
+            if (dualMode) {
+                dualLangIndex = (dualLangIndex + 1) % 2;
+                recognition.lang = dualLangIndex === 0 ? 'mn-MN' : 'en-US';
+            }
+            try {
+                recognition.start();
+            } catch (e) {
+                // Restart failed, stop recording
+                isRecording = false;
+                updateUI();
+            }
+        }
+    };
+}
+
+// ==================== TRANSCRIPT PROCESSING ====================
+function processTranscript(text) {
+    text = text.trim();
+    if (!text) return '';
+
+    // Auto capitalize first letter
+    if (finalTranscript === '' || /[.!?]\s*$/.test(finalTranscript)) {
+        text = text.charAt(0).toUpperCase() + text.slice(1);
+    }
+
+    // Add space before if needed
+    if (finalTranscript && !finalTranscript.endsWith('\n') && !finalTranscript.endsWith(' ')) {
+        text = ' ' + text;
+    }
+
+    // Auto punctuation for Mongolian
+    if (currentLang === 'mn-MN' || dualMode) {
+        // Add period at end of sentences (approximate)
+        if (text.length > 20 && !/[.!?]$/.test(text)) {
+            text += '.';
+        }
+    }
+
+    return text;
+}
+
+// ==================== UI UPDATES ====================
+function updateTranscriptDisplay() {
+    const box = document.getElementById('transcriptBox');
+    let html = finalTranscript.replace(/\n/g, '<br>');
+    
+    if (interimTranscript) {
+        html += '<span class="interim">' + interimTranscript + '</span>';
+    }
+    
+    if (!finalTranscript && !interimTranscript) {
+        html = '<span class="interim">Микрофон товчийг дарж яриагаа бичүүлнэ үү...</span>';
+    }
+    
+    box.innerHTML = html;
+    box.scrollTop = box.scrollHeight;
+}
+
+function updateWordCount() {
+    const text = finalTranscript.trim();
+    const words = text ? text.split(/\s+/).length : 0;
+    const chars = text.length;
+    document.getElementById('wordCount').textContent = `${words} үг • ${chars} тэмдэгт`;
+}
+
+function updateUI() {
+    const micBtn = document.getElementById('micBtn');
+    const micLabel = document.getElementById('micLabel');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+
+    if (isRecording) {
+        micBtn.classList.add('recording');
+        micBtn.textContent = '⏹️';
+        micLabel.textContent = 'Бичиж байна... Дарж зогсоох';
+        statusDot.classList.add('active');
+        statusText.textContent = dualMode ? 
+            `Бичиж байна (${dualLangIndex === 0 ? '🇲🇳 Монгол' : '🇺🇸 English'})` : 
+            'Бичиж байна...';
+    } else {
+        micBtn.classList.remove('recording');
+        micBtn.textContent = '🎤';
+        micLabel.textContent = 'Дарж эхлүүлэх';
+        statusDot.classList.remove('active');
+        statusText.textContent = 'Бэлэн байна';
+    }
+}
+
+// ==================== CONTROLS ====================
+function toggleRecording() {
+    if (isRecording) {
+        stopRecording();
+    } else {
+        startRecording();
+    }
+}
+
+function startRecording() {
+    if (!recognition) setupRecognition();
+    
+    try {
+        recognition.lang = currentLang;
+        recognition.start();
+        showToast('🎤 Бичилт эхэллээ');
+    } catch (e) {
+        console.error('Start error:', e);
+        showToast('⚠️ Алдаа гарлаа. Дахин оролдоно уу.');
+    }
+}
+
+function stopRecording() {
+    isRecording = false;
+    if (recognition) recognition.stop();
+    updateUI();
+    showToast('⏹️ Бичилт зогсоов');
+}
+
+// ==================== LANGUAGE SELECTION ====================
+function setLang(lang, btn) {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    if (lang === 'dual') {
+        dualMode = true;
+        currentLang = 'mn-MN';
+    } else {
+        dualMode = false;
+        currentLang = lang;
+    }
+
+    if (isRecording) {
+        recognition.stop();
+        setTimeout(() => {
+            try { recognition.start(); } catch(e) {}
+        }, 300);
+    }
+
+    const langNames = {
+        'mn-MN': '🇲🇳 Монгол хэл',
+        'en-US': '🇺🇸 English',
+        'dual': '🔄 Хос хэл'
+    };
+    showToast(`${langNames[lang]} сонгогдлоо`);
+}
+
+// ==================== VISUALIZER ====================
+function setupVisualizer() {
+    const visualizer = document.getElementById('visualizer');
+    visualizer.innerHTML = '';
+    for (let i = 0; i < 20; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = '10px';
+        visualizer.appendChild(bar);
+    }
+    
+    // Animate bars randomly when recording
+    setInterval(() => {
+        if (isRecording) {
+            const bars = visualizer.querySelectorAll('.bar');
+            bars.forEach(bar => {
+                const height = Math.random() * 40 + 5;
+                bar.style.height = height + 'px';
+            });
+        } else {
+            const bars = visualizer.querySelectorAll('.bar');
+            bars.forEach(bar => {
+                bar.style.height = '10px';
+            });
+        }
+    }, 100);
+}
+
+// ==================== ACTIONS ====================
+function copyText() {
+    const text = finalTranscript.trim();
+    if (!text) {
+        showToast('📋 Хуулах бичвэр байхгүй байна');
+        return;
+    }
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('✅ Хуулагдлаа!');
+    }).catch(() => {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('✅ Хуулагдлаа!');
+    });
+}
+
+function downloadText() {
+    const text = finalTranscript.trim();
+    if (!text) {
+        showToast('💾 Татах бичвэр байхгүй байна');
+        return;
+    }
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `transcript_${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('💾 Файл татагдлаа!');
+}
+
+function downloadWord() {
+    const text = finalTranscript.trim();
+    if (!text) {
+        showToast('📄 Татах бичвэр байхгүй байна');
+        return;
+    }
+    const header = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>Transcript</title></head><body>';
+    const footer = '</body></html>';
+    const content = header + '<p>' + text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>') + '</p>' + footer;
+    const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `transcript_${Date.now()}.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('📄 Word файл татагдлаа!');
+}
+
+function clearText() {
+    if (finalTranscript && !confirm('Бүх бичвэрийг устгах уу?')) return;
+    finalTranscript = '';
+    interimTranscript = '';
+    updateTranscriptDisplay();
+    updateWordCount();
+    showToast('🗑️ Цэвэрлэгдлээ');
+}
+
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// ==================== KEYBOARD SHORTCUTS ====================
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && document.activeElement.id !== 'transcriptBox') {
+        e.preventDefault();
+        toggleRecording();
+    }
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        downloadText();
+    }
+    if (e.ctrlKey && e.key === 'c' && document.activeElement.id !== 'transcriptBox') {
+        e.preventDefault();
+        copyText();
+    }
+});
+
+// ==================== INITIALIZE ====================
+init();
+</script>
+</body>
+</html>
